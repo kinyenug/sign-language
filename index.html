@@ -1,84 +1,96 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>온라인 단어장</title>
-  <style>
-    * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", sans-serif; }
-    body { max-width: 600px; margin: 0 auto; padding: 16px; background-color: #f8f9fa; color: #333; }
-    h1 { text-align: center; font-size: 22px; margin-bottom: 20px; }
-    .search-box { width: 100%; padding: 12px 16px; font-size: 16px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 16px; outline: none; }
-    .word-list { display: flex; flex-direction: column; gap: 12px; }
-    .word-card { background: #fff; border-radius: 8px; border: 1px solid #eee; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-    .word-header { padding: 14px 16px; font-size: 18px; font-weight: bold; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
-    .word-header:hover { background-color: #f1f3f5; }
-    .video-container { display: none; padding: 12px; background: #000; }
-    .video-container.active { display: block; }
-    .video-wrapper { position: relative; padding-bottom: 56.25%; height: 0; }
-    .video-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>수어 단어장</title>
+<link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-  <h1>📖 영상 단어장</h1>
-  <input type="text" id="searchInput" class="search-box" placeholder="단어 검색 (예: 사과)..." onkeyup="filterWords()">
+  <!-- ===================== 로그인 / 회원가입 화면 ===================== -->
+  <section id="auth-screen" class="auth-screen">
+    <div class="auth-card">
+      <h1>🤟 수어 단어장</h1>
+      <p class="auth-sub">로그인하고 수어 단어 영상을 검색해보세요.</p>
 
-  <div class="word-list" id="wordList"></div>
+      <div class="auth-tabs">
+        <button class="tab-btn active" data-tab="login">로그인</button>
+        <button class="tab-btn" data-tab="signup">회원가입</button>
+      </div>
 
-  <script>
-    // [단어 데이터 영역] 나중에 단어를 계속 추가하시면 됩니다.
-    // videoId는 유튜브 링크의 watch?v= 뒤쪽 영문/숫자 코드입니다.
-    const wordData = [
-      { id: "101", word: "사과", videoId: "95tZ5FPj958" },
-      { id: "102", word: "바나나", videoId: "95tZ5FPj958" },
-      { id: "103", word: "포도", videoId: "95tZ5FPj958" }
-    ];
+      <!-- 로그인 폼 -->
+      <form id="login-form" class="auth-form">
+        <label>이메일
+          <input type="email" id="login-email" required autocomplete="email" />
+        </label>
+        <label>비밀번호
+          <input type="password" id="login-password" required autocomplete="current-password" />
+        </label>
+        <button type="submit" class="btn-primary">로그인</button>
+        <p class="auth-error" id="login-error"></p>
+      </form>
 
-    const wordList = document.getElementById("wordList");
+      <!-- 회원가입 폼 -->
+      <form id="signup-form" class="auth-form hidden">
+        <label>이름
+          <input type="text" id="signup-name" required autocomplete="name" />
+        </label>
+        <label>이메일
+          <input type="email" id="signup-email" required autocomplete="email" />
+        </label>
+        <label>비밀번호 (6자 이상)
+          <input type="password" id="signup-password" required minlength="6" autocomplete="new-password" />
+        </label>
+        <button type="submit" class="btn-primary">회원가입</button>
+        <p class="auth-error" id="signup-error"></p>
+      </form>
+    </div>
+  </section>
 
-    function renderWords(items) {
-      wordList.innerHTML = "";
-      items.forEach(item => {
-        const card = document.createElement("div");
-        card.className = "word-card";
-        card.innerHTML = `
-          <div class="word-header" onclick="toggleVideo('${item.id}', '${item.videoId}')">
-            <span>${item.id}. ${item.word}</span>
-            <span style="font-size: 14px; color: #0066cc;">영상 보기 ▼</span>
-          </div>
-          <div class="video-container" id="video-${item.id}"></div>
-        `;
-        wordList.appendChild(card);
-      });
-    }
+  <!-- ===================== 메인 단어장 화면 (로그인 후) ===================== -->
+  <section id="app-screen" class="app-screen hidden">
+    <header class="app-header">
+      <h1>🤟 수어 단어장</h1>
+      <div class="user-box">
+        <span id="user-name"></span>
+        <button id="logout-btn" class="btn-ghost">로그아웃</button>
+      </div>
+    </header>
 
-    function toggleVideo(id, videoId) {
-      const container = document.getElementById(`video-${id}`);
-      if (container.classList.contains("active")) {
-        container.classList.remove("active");
-        container.innerHTML = "";
-      } else {
-        document.querySelectorAll('.video-container').forEach(el => {
-          el.classList.remove('active');
-          el.innerHTML = "";
-        });
-        container.classList.add("active");
-        container.innerHTML = `
-          <div class="video-wrapper">
-            <iframe src="https://www.youtube.com/embed/${videoId}?autoplay=1" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-          </div>
-        `;
-      }
-    }
+    <div class="toolbar">
+      <input type="search" id="search-input" placeholder="단어 검색 (예: 안녕하세요)" />
+      <select id="category-filter">
+        <option value="">전체 카테고리</option>
+      </select>
+    </div>
 
-    function filterWords() {
-      const query = document.getElementById("searchInput").value.toLowerCase();
-      const filtered = wordData.filter(item => item.word.toLowerCase().includes(query) || item.id.includes(query));
-      renderWords(filtered);
-    }
+    <p id="result-count" class="result-count"></p>
 
-    renderWords(wordData);
-  </script>
+    <div id="word-grid" class="word-grid"></div>
+    <p id="empty-message" class="empty-message hidden">등록된 단어가 없거나 검색 결과가 없습니다.</p>
+  </section>
+
+  <!-- ===================== 영상 재생 모달 ===================== -->
+  <div id="video-modal" class="modal hidden">
+    <div class="modal-content">
+      <button id="modal-close" class="modal-close">✕</button>
+      <h2 id="modal-word"></h2>
+      <p id="modal-category" class="modal-category"></p>
+      <div class="video-wrapper">
+        <iframe id="modal-video" src="" title="수어 단어 영상"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen></iframe>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase SDK (compat 버전 - 스크립트 태그만으로 사용 가능) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+  <script src="firebase-config.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
