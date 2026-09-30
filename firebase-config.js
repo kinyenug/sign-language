@@ -11,7 +11,7 @@
    ========================================================= */
 
 const firebaseConfig = {
-apiKey: "AIzaSyC2oQ69p2Mi8QVUASarpSNpsumvpbaUHFs",
+  apiKey: "AIzaSyC2oQ69p2Mi8QVUASarpSNpsumvpbaUHFs",
   authDomain: "sign-language-99ec5.firebaseapp.com",
   projectId: "sign-language-99ec5",
   storageBucket: "sign-language-99ec5.firebasestorage.app",
