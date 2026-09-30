@@ -17,6 +17,8 @@ const appScreen = document.getElementById("app-screen");
 const loginForm = document.getElementById("login-form");
 const signupForm = document.getElementById("signup-form");
 const tabBtns = document.querySelectorAll(".tab-btn");
+const googleLoginBtn = document.getElementById("google-login-btn");
+const googleErrorEl = document.getElementById("google-error");
 
 const userNameEl = document.getElementById("user-name");
 const logoutBtn = document.getElementById("logout-btn");
@@ -75,6 +77,20 @@ loginForm.addEventListener("submit", async (e) => {
     await auth.signInWithEmailAndPassword(email, password);
   } catch (err) {
     errorEl.textContent = friendlyAuthError(err);
+  }
+});
+
+/* ---------- Google 로그인 ---------- */
+googleLoginBtn.addEventListener("click", async () => {
+  googleErrorEl.textContent = "";
+  const provider = new firebase.auth.GoogleAuthProvider();
+  try {
+    await auth.signInWithPopup(provider);
+    // 처음 로그인하는 사람이면 Firebase가 자동으로 계정을 만들어줌 (회원가입/로그인 구분 없음)
+  } catch (err) {
+    if (err.code !== "auth/popup-closed-by-user") {
+      googleErrorEl.textContent = friendlyAuthError(err);
+    }
   }
 });
 
@@ -251,6 +267,8 @@ function friendlyAuthError(err) {
     "auth/wrong-password": "비밀번호가 올바르지 않습니다.",
     "auth/invalid-credential": "이메일 또는 비밀번호가 올바르지 않습니다.",
     "auth/too-many-requests": "시도 횟수가 많아 잠시 후 다시 시도해주세요.",
+    "auth/popup-blocked": "브라우저가 팝업을 차단했습니다. 팝업 차단을 해제한 뒤 다시 시도해주세요.",
+    "auth/account-exists-with-different-credential": "이미 이메일/비밀번호로 가입된 계정입니다. 그 방법으로 로그인해주세요.",
   };
   return map[err.code] || `오류가 발생했습니다 (${err.code || err.message})`;
 }
