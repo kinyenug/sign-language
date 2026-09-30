@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>온라인 단어장</title>
+  <style>
+    * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", sans-serif; }
+    body { max-width: 600px; margin: 0 auto; padding: 16px; background-color: #f8f9fa; color: #333; }
+    h1 { text-align: center; font-size: 22px; margin-bottom: 20px; }
+    .search-box { width: 100%; padding: 12px 16px; font-size: 16px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 16px; outline: none; }
+    .word-list { display: flex; flex-direction: column; gap: 12px; }
+    .word-card { background: #fff; border-radius: 8px; border: 1px solid #eee; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+    .word-header { padding: 14px 16px; font-size: 18px; font-weight: bold; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+    .word-header:hover { background-color: #f1f3f5; }
+    .video-container { display: none; padding: 12px; background: #000; }
+    .video-container.active { display: block; }
+    .video-wrapper { position: relative; padding-bottom: 56.25%; height: 0; }
+    .video-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
+  </style>
+</head>
+<body>
+
+  <h1>📖 영상 단어장</h1>
+  <input type="text" id="searchInput" class="search-box" placeholder="단어 검색 (예: 사과)..." onkeyup="filterWords()">
+
+  <div class="word-list" id="wordList"></div>
+
+  <script>
+    // [단어 데이터 영역] 나중에 단어를 계속 추가하시면 됩니다.
+    // videoId는 유튜브 링크의 watch?v= 뒤쪽 영문/숫자 코드입니다.
+    const wordData = [
+      { id: "101", word: "사과", videoId: "95tZ5FPj958" },
+      { id: "102", word: "바나나", videoId: "95tZ5FPj958" },
+      { id: "103", word: "포도", videoId: "95tZ5FPj958" }
+    ];
+
+    const wordList = document.getElementById("wordList");
+
+    function renderWords(items) {
+      wordList.innerHTML = "";
+      items.forEach(item => {
+        const card = document.createElement("div");
+        card.className = "word-card";
+        card.innerHTML = `
+          <div class="word-header" onclick="toggleVideo('${item.id}', '${item.videoId}')">
+            <span>${item.id}. ${item.word}</span>
+            <span style="font-size: 14px; color: #0066cc;">영상 보기 ▼</span>
+          </div>
+          <div class="video-container" id="video-${item.id}"></div>
+        `;
+        wordList.appendChild(card);
+      });
+    }
+
+    function toggleVideo(id, videoId) {
+      const container = document.getElementById(`video-${id}`);
+      if (container.classList.contains("active")) {
+        container.classList.remove("active");
+        container.innerHTML = "";
+      } else {
+        document.querySelectorAll('.video-container').forEach(el => {
+          el.classList.remove('active');
+          el.innerHTML = "";
+        });
+        container.classList.add("active");
+        container.innerHTML = `
+          <div class="video-wrapper">
+            <iframe src="https://www.youtube.com/embed/${videoId}?autoplay=1" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+          </div>
+        `;
+      }
+    }
+
+    function filterWords() {
+      const query = document.getElementById("searchInput").value.toLowerCase();
+      const filtered = wordData.filter(item => item.word.toLowerCase().includes(query) || item.id.includes(query));
+      renderWords(filtered);
+    }
+
+    renderWords(wordData);
+  </script>
+</body>
+</html>
