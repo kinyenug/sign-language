@@ -67,9 +67,49 @@
       <h1>🤟 수어 단어장</h1>
       <div class="user-box">
         <span id="user-name"></span>
+        <button id="admin-toggle-btn" class="btn-ghost hidden">⚙️ 단어 관리</button>
         <button id="logout-btn" class="btn-ghost">로그아웃</button>
       </div>
     </header>
+
+    <!-- 관리자 전용: 단어 추가/수정 (관리자 이메일로 로그인한 경우에만 보임) -->
+    <div id="admin-panel" class="admin-panel hidden">
+      <h2>단어 추가 / 수정</h2>
+      <p class="admin-hint">
+        이미 있는 "단어 + 카테고리" 조합으로 다시 추가하면, 새로 만들어지지 않고
+        기존 내용이 수정됩니다 (유튜브 링크 오타 고칠 때 유용해요).
+      </p>
+      <form id="admin-form" class="admin-form">
+        <label>단어
+          <input type="text" id="admin-word" required placeholder="예: 안녕하세요" />
+        </label>
+        <label>카테고리
+          <input type="text" id="admin-category" required placeholder="예: 인사" list="admin-category-list" />
+          <datalist id="admin-category-list"></datalist>
+        </label>
+        <label>유튜브 링크 또는 영상 ID
+          <input type="text" id="admin-youtube" required placeholder="https://www.youtube.com/watch?v=xxxxxxxxxxx" />
+        </label>
+        <button type="submit" class="btn-primary">저장</button>
+        <p class="auth-error" id="admin-error"></p>
+        <p class="admin-success" id="admin-success"></p>
+      </form>
+
+      <div class="admin-divider"><span>또는</span></div>
+
+      <div class="admin-bulk">
+        <h3>엑셀/CSV 파일로 한번에 추가</h3>
+        <p class="admin-hint">
+          다음 둘 중 하나의 형식을 자동으로 인식합니다 — ① "word, category, youtube_id" 열이 있는
+          파일(words-전체.csv 같은 형식), ② 수어연구회의 어휘목록처럼 "분류 / 원본 영상 제목 /
+          유튜브 바로가기 링크" 순서의 시트(여러 시트 한번에 가능, 번호는 자동으로 제거됨).
+          이미 있는 단어는 새로 생기지 않고 내용만 갱신됩니다.
+        </p>
+        <input type="file" id="admin-bulk-file" accept=".xlsx,.xls,.csv" />
+        <button id="admin-bulk-btn" class="btn-primary" type="button">파일 업로드</button>
+        <p class="admin-hint" id="admin-bulk-status"></p>
+      </div>
+    </div>
 
     <div class="toolbar">
       <input type="search" id="search-input" placeholder="단어 검색 (예: 안녕하세요)" />
@@ -104,6 +144,9 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-check-compat.js"></script>
+
+  <!-- 엑셀/CSV 파일을 읽기 위한 라이브러리 (관리자 일괄 업로드 기능에서 사용) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
   <script src="firebase-config.js"></script>
   <script src="app.js"></script>
